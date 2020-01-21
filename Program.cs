@@ -45,10 +45,10 @@ namespace AdventCode
             //add first wire coordinates to lWire
             String[] input1 = wires[0].Split(',');
 
-            for (int i = 0; i < input1.Length; i++)
+            foreach (string s1 in input1)
             {
-                int[] dir = GetDir(input1[i][0]);
-                int len = int.Parse(input1[i].Substring(1));
+                int[] dir = GetDir(s1[0]);
+                int len = int.Parse(s1.Substring(1));
                 for (int j = 0; j < len; j++)
                 {
                     int newX = x + dir[0];
@@ -70,10 +70,10 @@ namespace AdventCode
             x = 0;
             y = 0;
 
-            for (int i = 0; i < input2.Length; i++)
+            foreach (string s2 in input2)
             {
-                int[] dir = GetDir(input2[i][0]);
-                int len = int.Parse(input2[i].Substring(1));
+                int[] dir = GetDir(s2[0]);
+                int len = int.Parse(s2.Substring(1));
                 for (int j = 0; j < len; j++)
                 {
 
