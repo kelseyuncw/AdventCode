@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace AdventCode
@@ -36,13 +35,13 @@ namespace AdventCode
         //advent day 3
         public static int GetManhattanDistance(string[] wires)
         {
-            List<string> lWire = new List<string>();
+            HashSet<string> hsWire = new HashSet<string>();
             int closestDistance = int.MaxValue;
 
             int x = 0;
             int y = 0;
 
-            //add first wire coordinates to lWire
+            //add first wire coordinates to hsWire
             String[] input1 = wires[0].Split(',');
 
             foreach (string s1 in input1)
@@ -53,9 +52,9 @@ namespace AdventCode
                 {
                     int newX = x + dir[0];
                     int newY = y + dir[1];
-                    if (!lWire.Contains(newX + "_" + newY))
+                    if (!hsWire.Contains(newX + "_" + newY))
                     {
-                        lWire.Add(newX + "_" + newY);
+                        hsWire.Add(newX + "_" + newY);
                     }
                     x = newX;
                     y = newY;
@@ -80,7 +79,7 @@ namespace AdventCode
                     int newX = x + dir[0];
                     int newY = y + dir[1];
 
-                    if (lWire.Contains(newX + "_" + newY))
+                    if (hsWire.Contains(newX + "_" + newY))
                     {
                         closestDistance = Math.Min(closestDistance, (int)Math.Abs(newX) + (int)Math.Abs(newY));
                     }
@@ -107,32 +106,63 @@ namespace AdventCode
         //advent day 6
         public static int GetOrbitCount(string[] orbits)
         {
-            Hashtable htOrbits = new Hashtable();
-            int sum = 0;
+            Dictionary<String, Node> planets = new Dictionary<String, Node>();
 
             foreach (string orbit in orbits)
             {
                 string[] splitOrbit = orbit.Split(')');
 
-                int numOrbits = 1;
-
-                //if first string is a key in hashtable, add it's value to numOrbits
-                if (htOrbits.ContainsKey(splitOrbit[0]))
+                //if planets doesn't contain left side of ')', add with no parent
+                if (!planets.ContainsKey(splitOrbit[0]))
                 {
-                    numOrbits += int.Parse(htOrbits[splitOrbit[0]].ToString());
+                    planets[splitOrbit[0]] = new Node(splitOrbit[0], null);
                 }
 
-                htOrbits.Add(splitOrbit[1], numOrbits);
+                //if planets doesn't contain right side of ')', add with left side as parent
+                //else, update parent of right side to be left side
+                if (!planets.ContainsKey(splitOrbit[1]))
+                {
+                    planets[splitOrbit[1]] = new Node(splitOrbit[1], planets[splitOrbit[0]]);
+                }
+                else
+                {
+                    planets[splitOrbit[1]].parent = planets[splitOrbit[0]];
+                }
             }
 
-            //add all values in hashtable to get sum of orbits
-            foreach (DictionaryEntry entry in htOrbits)
+            //count orbits for all planets
+            int orbitCount = 0;
+            foreach (var item in planets)
             {
-                sum += int.Parse(entry.Value.ToString());
+                orbitCount += item.Value.orbitCount;
             }
 
-            return sum;
+            return orbitCount;
+        }
+    }
+    class Node
+    {
+        public string name { get; }
+        private Node _parent;
+        public Node parent
+        {
+            get { return _parent; }
+            set
+            {
+                if (_parent != null && _parent != value)
+                {
+                    throw new ArgumentException($"Node[{name}] already has a parent.");
+                }
+                _parent = value;
+            }
         }
 
+        public int orbitCount => (parent == null) ? 0 : parent.orbitCount + 1;
+
+        public Node(string name, Node parent)
+        {
+            this.name = name;
+            this.parent = parent;
+        }
     }
 }
